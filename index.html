@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">  
+  <title>Workout Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background-image: url('realistic-carbon-fiber-texture-3d-background_1017-33439.avif');
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .button {
+      display: block;
+      margin-bottom: 10px;
+      padding: 10px 20px;
+      background-color: #f80404d5;
+      color: silver;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .input-field {
+      margin-bottom: 10px;
+    }
+
+    .input-field label {
+      display: block;
+      font-weight: bold;
+    }
+
+    .input-field input {
+      padding: 5px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Workout Tracker</h1>
+    <button class="button" id="startWorkoutBtn">Start Workout</button>
+    <div id="workoutForm">
+      <div class="input-field">
+        <label for="exerciseSelect">Exercise:</label>
+        <select id="exerciseSelect"></select>
+      </div>
+      <div class="input-field">
+        
+        <label for="weightInput">Weight (kg):</label>
+        
+        <input type="number" step="0.01" min="0" max="600" id="weightInput">
+      </div>
+      <div class="input-field">
+        <label for="repsInput">Repetitions:</label>
+        <input type="number" min="0" id="repsInput">
+      </div>
+      <button class="button" id="newSetBtn">New Set</button>
+      <button class="button" id="endWorkoutBtn">End Workout</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Exercise options for the dropdown menu. I commented out the following as they were not appearing.
+    //let exerciseOptions = [
+      // 'Exercise 1',
+      // 'Exercise 2',
+      // 'Exercise 3',
+      // 'Seated Chest Press'
+      // Add more exercises here
+    //];
+
+    // Initialize variables
+  
+
+    // Function to populate exercise options
+    function populateExerciseOptions() {
+      const exerciseSelect = document.getElementById('exerciseSelect');
+      exerciseSelect.innerHTML = ''; // Clear the dropdown menu before populating
+
+      exerciseOptions.forEach((exercise) => {
+        const option = document.createElement('option');
+        option.value = exercise;
+        option.textContent = exercise;
+        if (exercise === selectedExercise) {
+          option.selected = true; // Set selected attribute for current exercise
+        }
+        exerciseSelect.appendChild(option);
+      });
+    }
+
+    // Function to handle new set button click
+    function handleNewSet() {
+      // Retrieve selected values
+      selectedExercise = document.getElementById('exerciseSelect').value;
+      selectedWeight = document.getElementById('weightInput').value;
+      selectedReps = document.getElementById('repsInput').value;
+
+      // Store previous set values
+      const previousSet = {
+        exercise: selectedExercise,
+        weight: selectedWeight,
+        reps: selectedReps
+      };
+
+      // Submit previous set to the database or perform any required action
+      console.log(previousSet);
+
+      // Reset input fields for a new set
+      document.getElementById('exerciseSelect').value = selectedExercise;
+      document.getElementById('weightInput').value = selectedWeight;
+      document.getElementById('repsInput').value = selectedReps;
+
+      // Optionally, you can set the focus to the exercise select field
+      // document.getElementById('exerciseSelect').focus();
+    }
+
+    // Function to handle end workout button click
+    function handleEndWorkout() {
+      // Retrieve selected values
+      selectedExercise = document.getElementById('exerciseSelect').value;
+      selectedWeight = document.getElementById('weightInput').value;
+      selectedReps = document.getElementById('repsInput').value;
+
+      // Collect all workout data
+      const workoutData = {
+        startDateTime: startDateTime,
+        exercise: selectedExercise,
+        weight: selectedWeight,
+        reps: selectedReps
+      };
+
+      // Send workout data to the server
+      fetch('/workout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(workoutData)
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Workout data sent:', data);
+        })
+        .catch(error => {
+          console.error('Error sending workout data:', error);
+        });
+
+      // Reset the form and hide it
+      document.getElementById('workoutForm').style.display = 'none';
+      document.getElementById('startWorkoutBtn').disabled = false;
+    }
+
+    // Add event listeners to the buttons
+    document.getElementById('startWorkoutBtn').addEventListener('click', () => {
+      document.getElementById('startWorkoutBtn').disabled = true; // Disable the button after clicking
+      document.getElementById('workoutForm').style.display = 'block';
+      // Store the start date/time to use as a unique identifier for the workout
+      startDateTime = new Date().toISOString();
+    });
+
+    document.getElementById('newSetBtn').addEventListener('click', handleNewSet);
+    document.getElementById('endWorkoutBtn').addEventListener('click', handleEndWorkout);
+
+    // Initialize exercise options
+    populateExerciseOptions();
+  </script>
+</body>
+</html>
